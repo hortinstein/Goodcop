@@ -1,0 +1,8 @@
+plane_model,fuel,passengers,weight
+Boeing_737,1000,150,80000
+Airbus_A320,1200,,85000
+Boeing_737,950,140,81000
+Airbus_A320,,130,87000
+Boeing_747,2000,350,150000
+Boeing_747,1900,,145000
+Boeing_747,,,
