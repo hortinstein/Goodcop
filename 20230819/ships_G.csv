@@ -1,4 +1,4 @@
-callsign,ship_type,fuel,passengers,weight,lat,long,shortname,name
+callsign,shipType,fuel,pax,stons,lat,long,shortname,name
 ZX101,Cargo,240,2,54000,34.1022,-118.2937,CARG4,Cargo Ship Four
 LM876,Passenger,580,280,,40.7628,-74.0560,PAS4,Passenger Ship 4
 GH935,Fishing,115,8,22000,34.0722,-118.2637,,Fishing Ship 4
@@ -25,3 +25,8 @@ IW980,Passenger,,300,40000,40.7828,-74.0760,PAS6,Passenger Ship 6
 GH955,Fishing,125,10,23000,34.0922,,FISH6,Fishing Ship 6
 RS678,Research,370,62,44500,47.6562,-122.3921,RES6,Research Ship Six
 MN619,Military,800,120,86000,41.9481,-87.6998,MIL7,Military Ship 7
+
+Yacht 1 - Yaht 1
+Passenger Ship 1 - Passenger Ship 2
+Passenger Ship 1 - Passenger Ship 2
+Fishing Ship 1 - Fishing Ship 2

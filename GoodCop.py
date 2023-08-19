@@ -2,6 +2,41 @@ import os
 import pandas as pd
 from fuzzywuzzy import fuzz
 
+def generate_populationtable(df, target_col, columns):
+    """
+    Generate a population table for the given column in the DataFrame.
+    
+    :param df: DataFrame 
+    :param target_col: The column whose unique values will serve as rows in the result
+    :param columns: List of columns to calculate the percentage of non-null values
+    :return: A DataFrame where each row corresponds to a unique value in target_col,
+             and each column is the percentage of non-nulls for the specified columns
+    """
+    
+    # Initialize an empty list to store the population data
+    population_data = []
+    
+    # Get the unique values in the target column
+    unique_values = df[target_col].unique()
+    
+    for value in unique_values:
+        value_data = df[df[target_col] == value]
+        
+        # Finding the percentage of non-null values for each specified column
+        percentages = value_data[columns].notnull().mean() * 100
+        
+        # Create a dictionary with the value of target_col as the first entry
+        # and the percentages as the remaining entries
+        row_data = {target_col: value}
+        row_data.update(percentages.to_dict())
+        
+        # Append this dictionary to population_data
+        population_data.append(row_data)
+    
+    # Convert the list of dictionaries into a DataFrame
+    population_table = pd.DataFrame(population_data)
+    
+    return population_table
 
 def highlight_nans(df):
     """
@@ -22,6 +57,65 @@ def highlight_nans(df):
         for j, val in enumerate(row):
             if pd.isna(val):
                 formatted_row += f"{RED}{'NaN':>{col_widths[j]}}{END} "
+            else:
+                formatted_row += f"{val:>{col_widths[j]}} "
+        print(formatted_row)
+
+    print()
+def is_numeric(val):
+    """
+    Check if the value is numeric (int or float)
+    """
+    return isinstance(val, (int, float))
+
+def color_df(df):
+    """
+    Print a DataFrame to the terminal, highlighting 
+    0-50:red, 50-70:orange, 70-90:yellow, 90-100:green
+    
+    :param df: DataFrame to print
+    """
+    # ANSI color code strings
+    RED = '\033[91m'
+    ORANGE = '\033[93m'
+    YELLOW = '\033[92m'
+    GREEN = '\033[94m'
+    END = '\033[0m'
+    
+    # Find the maximum width for each column
+    col_widths = df.applymap(lambda x: len(str(x))).max()
+
+    
+    # Print column headers
+    header = ""
+    for j, col in enumerate(df.columns):
+        header += f"{col:>{col_widths[j]}} "
+    print(header)
+    
+    # Print a separator line
+    separator = ""
+    for j, col in enumerate(df.columns):
+        separator += f"{'-'*col_widths[j]} "
+    print(separator)
+    
+
+    # Create a formatted string with spacing for each row
+    for i, row in df.iterrows():
+        formatted_row = ""
+        for j, val in enumerate(row):
+            if pd.isna(val):
+                formatted_row += f"{'NaN':>{col_widths[j]}} "
+            elif is_numeric(val):
+                if val >= 0 and val < 50:
+                    formatted_row += f"{RED}{val:>{col_widths[j]}}{END} "
+                elif val >= 50 and val < 70:
+                    formatted_row += f"{ORANGE}{val:>{col_widths[j]}}{END} "
+                elif val >= 70 and val < 90:
+                    formatted_row += f"{YELLOW}{val:>{col_widths[j]}}{END} "
+                elif val >= 90 and val <= 100:
+                    formatted_row += f"{GREEN}{val:>{col_widths[j]}}{END} "
+                else:
+                    formatted_row += f"{val:>{col_widths[j]}} "
             else:
                 formatted_row += f"{val:>{col_widths[j]}} "
         print(formatted_row)
@@ -136,6 +230,15 @@ def load_datasets(folder_path):
 # Get the path where the script is running
 script_path = os.path.dirname(os.path.abspath(__file__))
 
+
+# Dictionary mapping current column names to new column names
+new_column_names = {
+    'shipType': 'ship_type',
+    'pax':'passengers',
+    'stons': 'weight'
+}
+
+
 # Iterate over all folders in the script path
 for folder_name in os.listdir(script_path):
     folder_path = os.path.join(script_path, folder_name)
@@ -143,6 +246,10 @@ for folder_name in os.listdir(script_path):
         # Compare datasets in this folder
         df_m, df_g = load_datasets(folder_path)
         if df_m is not None and df_g is not None:
+
+           # Rename the columns
+            df_g.rename(columns=new_column_names, inplace=True)
+
             #compare_datasets(df_g, df_m)
             find_duplicates_in_dataset(df_g)
             find_duplicates_in_dataset(df_g)
@@ -150,3 +257,4 @@ for folder_name in os.listdir(script_path):
             #find_potential_misspelled_names(df_g)
             exc = side_by_side(df_g,df_m)
             highlight_nans(exc)
+            color_df(generate_populationtable(df_g,'ship_type',['fuel','passengers','weight','lat','long']))
