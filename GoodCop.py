@@ -41,26 +41,38 @@ def generate_populationtable(df, target_col, columns):
 def highlight_nans(df):
     """
     Print a DataFrame to the terminal, highlighting NaNs in red.
-    
     :param df: DataFrame to print
     """
     # ANSI color code strings
     RED = '\033[91m'
     END = '\033[0m'
     
+    # Make sure column names are strings
+    df.columns = df.columns.map(str)
+    
     # Find the maximum width for each column
     col_widths = df.applymap(lambda x: len(str(x))).max()
     
+    # Create and print the column names row
+    header_row = ""
+    for j, col_name in enumerate(df.columns):
+        header_row += f"{col_name[7:-2]:>{col_widths[j]}} "
+    print(header_row)
+    
+    # Print a horizontal line separating the column names and data
+    print('-' * (sum(col_widths) + len(col_widths)))
+
     # Create a formatted string with spacing for each row
     for i, row in df.iterrows():
         formatted_row = ""
         for j, val in enumerate(row):
+            val_str = str(val)
             if pd.isna(val):
                 formatted_row += f"{RED}{'NaN':>{col_widths[j]}}{END} "
             else:
-                formatted_row += f"{val:>{col_widths[j]}} "
+                formatted_row += f"{val_str:>{col_widths[j]}} "
         print(formatted_row)
-
+        
     print()
 def is_numeric(val):
     """
@@ -84,21 +96,7 @@ def color_df(df):
     
     # Find the maximum width for each column
     col_widths = df.applymap(lambda x: len(str(x))).max()
-
     
-    # Print column headers
-    header = ""
-    for j, col in enumerate(df.columns):
-        header += f"{col:>{col_widths[j]}} "
-    print(header)
-    
-    # Print a separator line
-    separator = ""
-    for j, col in enumerate(df.columns):
-        separator += f"{'-'*col_widths[j]} "
-    print(separator)
-    
-
     # Create a formatted string with spacing for each row
     for i, row in df.iterrows():
         formatted_row = ""
