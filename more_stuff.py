@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 
 # Sample data
 data = {
@@ -33,7 +34,8 @@ def calc_percentage(group):
 
 result = df.groupby(['plane_type', 'specific_plane_type'],
                     dropna=False).apply(calc_percentage)
-
+f = open("result.md", "w")
+f.write(result.to_markdown())
 # Printing the result
 print(result)
 
